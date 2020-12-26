@@ -13,7 +13,7 @@ resource "aws_vpn_gateway" "main" {
 resource "aws_vpn_gateway_route_propagation" "main" {
   count = length(var.aws_route_table_ids)
 
-  route_table_id = var.aws_route_table_ids
+  route_table_id = var.aws_route_table_ids[count.index]
   vpn_gateway_id = aws_vpn_gateway.main.id
 }
 
