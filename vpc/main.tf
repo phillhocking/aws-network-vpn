@@ -128,6 +128,15 @@ resource "aws_network_acl" "private" {
     to_port    = 0
   }
 
+  ingress {
+    protocol   = -1
+    rule_no    = 1100
+    action     = "allow"
+    cidr_block = var.prem_network_address_space
+    from_port  = 0
+    to_port    = 0
+  }
+
   egress {
     protocol   = -1
     rule_no    = 100
