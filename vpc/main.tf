@@ -309,9 +309,7 @@ resource "aws_route_table_association" "dev_routes" {
 }
 
 resource "aws_route" "dev_nat" {
-  count = var.subnet_count
-  
-  route_table_id            = aws_route_table.dev[count.index].id
+  route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.gw.id
 }
