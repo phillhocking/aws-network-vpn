@@ -254,18 +254,18 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-resource "aws_eip" "dev-nat" {
+resource "aws_eip" "nat-gw" {
   vpc = true
 
   tags = {
-    Name = "dev-nat-elastic-ip"
+    Name = "nat-elastic-ip"
   }
 
   depends_on = [aws_internet_gateway.gw]
 }
 
 resource "aws_nat_gateway" "gw" {
-  allocation_id = aws_eip.dev-nat.id
+  allocation_id = aws_eip.nat-gw.id
   subnet_id     = aws_subnet.dev[0].id
 
   tags = {
@@ -285,12 +285,6 @@ resource "aws_route_table" "dev" {
   }
 }
 
-#resource "aws_route" "dev_igw" {
-#  route_table_id            = aws_route_table.dev.id
-#  destination_cidr_block    = "0.0.0.0/0"
-#  gateway_id = aws_internet_gateway.gw.id
-#}
-
 resource "aws_route_table" "staging" {
   vpc_id = aws_vpc.main.id
 
@@ -307,17 +301,19 @@ resource "aws_route_table" "prod" {
   }
 }
 
-resource "aws_route" "dev_nat" {
-  route_table_id            = aws_route_table.dev.id
-  destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.gw.id
-}
-
 resource "aws_route_table_association" "dev_routes" {
   count = var.subnet_count
 
   subnet_id      = aws_subnet.dev[count.index].id
   route_table_id = aws_route_table.dev.id
+}
+
+resource "aws_route" "dev_nat" {
+  count = var.subnet_count
+  
+  route_table_id            = aws_route_table.dev[count.index].id
+  destination_cidr_block    = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.gw.id
 }
 
 resource "aws_route_table_association" "staging_routes" {
