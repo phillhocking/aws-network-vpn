@@ -5,15 +5,20 @@ output "vpc_id" {
 
 output "vpc_cidr_block" {
   value       = aws_vpc.main.cidr_block
-  description = "the cidr block of the vpc"
+  description = "cidr prefix of vpc"
 }
 
-output "private_route_table_id" {
-  value = aws_route_table.private.id
-  description = "the private route table of the vpc"
+output "dev_route_table_id" {
+  value = aws_route_table.dev.id
+  description = "dev route table for vpc"
 }
 
-output "public_route_table_id" {
-  value = aws_route_table.public.id
-  description = "the public route table of the vpc"
+output "staging_route_table_id" {
+  value = aws_route_table.staging.id
+  description = "staging route table for vpc"
+}
+
+output "prod_route_table_id" {
+  value = aws_route_table.prod.id
+  description = "prod route table for vpc"
 }
