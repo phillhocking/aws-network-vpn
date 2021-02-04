@@ -277,13 +277,13 @@ resource "aws_nat_gateway" "gw" {
 
 # Route Tables
 
-#resource "aws_route_table" "dev" {
-#  vpc_id = aws_vpc.main.id
-#
-#  tags = {
-#    Name = "dev-route-table"
-#  }
-#}
+resource "aws_route_table" "dev" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "dev-route-table"
+  }
+}
 
 resource "aws_route" "dev_igw" {
   route_table_id            = aws_route_table.main.id
