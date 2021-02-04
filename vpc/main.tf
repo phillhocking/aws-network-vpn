@@ -91,8 +91,8 @@ resource "aws_network_acl" "dev" {
     rule_no    = 600
     action     = "allow"
     cidr_block = "0.0.0.0/0"
-    from_port  = -1
-    to_port    = -1
+    from_port  = 0
+    to_port    = 0
   }
 
   ingress {
@@ -145,8 +145,8 @@ resource "aws_network_acl" "staging" {
     rule_no    = 600
     action     = "allow"
     cidr_block = "0.0.0.0/0"
-    from_port  = -1
-    to_port    = -1
+    from_port  = 0
+    to_port    = 0
   }
 
   ingress {
@@ -208,8 +208,8 @@ resource "aws_network_acl" "prod" {
     rule_no    = 600
     action     = "allow"
     cidr_block = "0.0.0.0/0"
-    from_port  = -1
-    to_port    = -1
+    from_port  = 0
+    to_port    = 0
   }
 
   ingress {
