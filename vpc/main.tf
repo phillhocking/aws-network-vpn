@@ -285,11 +285,11 @@ resource "aws_route_table" "dev" {
   }
 }
 
-resource "aws_route" "dev_igw" {
-  route_table_id            = aws_route_table.dev.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.gw.id
-}
+#resource "aws_route" "dev_igw" {
+#  route_table_id            = aws_route_table.dev.id
+#  destination_cidr_block    = "0.0.0.0/0"
+#  gateway_id = aws_internet_gateway.gw.id
+#}
 
 resource "aws_route_table" "staging" {
   vpc_id = aws_vpc.main.id
@@ -307,11 +307,11 @@ resource "aws_route_table" "prod" {
   }
 }
 
-#resource "aws_route" "dev_nat" {
-#  route_table_id            = aws_route_table.dev.id
-#  destination_cidr_block    = "0.0.0.0/0"
-#  nat_gateway_id = aws_nat_gateway.gw.id
-#}
+resource "aws_route" "dev_nat" {
+  route_table_id            = aws_route_table.dev.id
+  destination_cidr_block    = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.gw.id
+}
 
 resource "aws_route_table_association" "dev_routes" {
   count = var.subnet_count
