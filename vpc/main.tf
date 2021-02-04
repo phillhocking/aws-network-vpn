@@ -39,7 +39,7 @@ resource "aws_subnet" "prod" {
   availability_zone = data.aws_availability_zones.available.names[1]
 
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 6, count.index * 2 + 2)
+  cidr_block        = cidrsubnet(var.cidr_block, 6, count.index * 2 + 3)
 
   tags = {
     Name = "prod-subnet-${count.index}"
