@@ -12,13 +12,3 @@ output "dev_route_table_id" {
   value = aws_route_table.dev.id
   description = "dev route table for vpc"
 }
-
-output "staging_route_table_id" {
-  value = aws_route_table.staging.id
-  description = "staging route table for vpc"
-}
-
-output "prod_route_table_id" {
-  value = aws_route_table.prod.id
-  description = "prod route table for vpc"
-}
