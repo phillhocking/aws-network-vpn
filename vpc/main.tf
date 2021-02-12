@@ -31,7 +31,7 @@ resource "aws_network_acl" "dev" {
     protocol   = -1
     rule_no    = 1000
     action     = "allow"
-    cidr_block = aws_vpc.main.cidr_block
+    cidr_block = var.cidr_block
     from_port  = 0
     to_port    = 0
   }
