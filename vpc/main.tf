@@ -93,8 +93,14 @@ resource "aws_default_route_table" "main" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
+  route {
+    cidr_block    = aws_subnet.dev.cidr_block
+    gateway_id    = aws_nat_gateway.gw.id
+    
+  }
+
   tags = {
-    Name = "default table"
+    Name = "Default Route to IGW"
   }
 }
 
@@ -110,6 +116,7 @@ resource "aws_route_table" "dev" {
 resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
+  depends_on = [aws_route_table.dev]
 }
 
 resource "aws_route" "dev_nat" {
