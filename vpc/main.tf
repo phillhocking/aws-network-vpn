@@ -14,10 +14,11 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "dev" {
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone       = data.aws_availability_zones.available.names[0]
 
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 6, 1)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = cidrsubnet(var.cidr_block, 6, 1)
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "dev-subnet"
@@ -93,12 +94,6 @@ resource "aws_default_route_table" "main" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  route {
-    cidr_block    = aws_subnet.dev.cidr_block
-    gateway_id    = aws_nat_gateway.gw.id
-    
-  }
-
   tags = {
     Name = "Default Route to IGW"
   }
@@ -108,19 +103,25 @@ resource "aws_default_route_table" "main" {
 resource "aws_route_table" "dev" {
   vpc_id = aws_vpc.main.id
 
+  route {
+    cidr_block    = "0.0.0.0/0"
+    gateway_id    = aws_nat_gateway.gw.id
+
+  }
+
   tags = {
     Name = "dev-route-table"
   }
 }
 
-resource "aws_route_table_association" "dev_routes" {
-  subnet_id      = aws_subnet.dev.id
-  route_table_id = aws_route_table.dev.id
-  depends_on = [aws_route_table.dev]
-}
+#resource "aws_route_table_association" "dev_routes" {
+#  subnet_id      = aws_subnet.dev.id
+#  route_table_id = aws_route_table.dev.id
+#  depends_on = [aws_route_table.dev]
+#}
 
-resource "aws_route" "dev_nat" {
-  route_table_id            = aws_route_table.dev.id
-  destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.gw.id
-}
+#resource "aws_route" "dev_nat" {
+#  route_table_id            = aws_route_table.dev.id
+#  destination_cidr_block    = "0.0.0.0/0"
+#  nat_gateway_id = aws_nat_gateway.gw.id
+#}
