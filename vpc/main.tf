@@ -103,25 +103,25 @@ resource "aws_default_route_table" "main" {
 resource "aws_route_table" "dev" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block    = "0.0.0.0/0"
-    gateway_id    = aws_nat_gateway.gw.id
-
-  }
+  #route {
+  #  cidr_block    = "0.0.0.0/0"
+ #   gateway_id    = aws_nat_gateway.gw.id
+#
+#  }
 
   tags = {
     Name = "dev-route-table"
   }
 }
 
-#resource "aws_route_table_association" "dev_routes" {
-#  subnet_id      = aws_subnet.dev.id
-#  route_table_id = aws_route_table.dev.id
-#  depends_on = [aws_route_table.dev]
-#}
+resource "aws_route_table_association" "dev_routes" {
+  subnet_id      = aws_subnet.dev.id
+  route_table_id = aws_route_table.dev.id
+  depends_on = [aws_route_table.dev]
+}
 
-#resource "aws_route" "dev_nat" {
-#  route_table_id            = aws_route_table.dev.id
-#  destination_cidr_block    = "0.0.0.0/0"
-#  nat_gateway_id = aws_nat_gateway.gw.id
-#}
+resource "aws_route" "dev_nat" {
+  route_table_id            = aws_route_table.dev.id
+  destination_cidr_block    = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.gw.id
+}
