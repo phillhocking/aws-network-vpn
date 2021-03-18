@@ -8,11 +8,6 @@ variable "cidr_block" {
   description = "the cidr block to use for the vpc"
 }
 
-variable "subnet_count" {
-  type        = number
-  description = "how many private and private subnets to create"
-}
-
 variable "prem_network_address_space" {
   type        = string
   description = "Premise network address cidr"

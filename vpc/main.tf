@@ -13,7 +13,6 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "dev" {
-  #count = var.subnet_count
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
   availability_zone = data.aws_availability_zones.available.names[0]
 
@@ -27,7 +26,7 @@ resource "aws_subnet" "dev" {
 
 resource "aws_network_acl" "dev" {
   vpc_id     = aws_vpc.main.id
-  subnet_ids = aws_subnet.dev.id
+  #subnet_id  = aws_subnet.dev.id
 
   ingress {
     protocol   = -1
