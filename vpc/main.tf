@@ -31,6 +31,7 @@ resource "aws_network_acl" "dev" {
     protocol   = -1
     rule_no    = 1000
     action     = "allow"
+    #cidr_block = var.prem_network_address_space
     cidr_block = "0.0.0.0/0"
     from_port  = 0
     to_port    = 0
