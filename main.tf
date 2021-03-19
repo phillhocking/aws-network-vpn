@@ -4,6 +4,7 @@ module "vpc" {
   cidr_block   = "10.21.0.0/16"
   prem_network_address_space = "10.20.0.0/16"
   prem_edge_ip  = var.edge_ip
+  subnet_count = 1
 }
 
 module "vpn" {
