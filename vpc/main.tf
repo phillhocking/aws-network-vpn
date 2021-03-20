@@ -59,7 +59,7 @@ resource "aws_subnet" "public" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 24, 1)
+  cidr_block        = cidrsubnet(var.cidr_block, 8, 1)
 
 
   tags = {
