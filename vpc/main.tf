@@ -20,6 +20,9 @@ resource "aws_subnet" "dev" {
   tags = {
     Name = "dev-subnet-${count.index}"
   }
+  depends_on = [
+    aws_vpc.main,
+  ]
 }
 
 resource "aws_network_acl" "dev" {
@@ -47,6 +50,10 @@ resource "aws_network_acl" "dev" {
   tags = {
     Name = "dev-acl"
   }
+
+  depends_on = [
+    aws_subnet.dev,
+  ]
 }
 
 # Gateways
@@ -57,6 +64,10 @@ resource "aws_internet_gateway" "gw" {
   tags = {
     Name = "${var.vpc_name}-internet-gateway"
   }
+
+  depends_on = [
+    aws_subnet.dev,
+  ]
 }
 
 resource "aws_eip" "nat-gw" {
@@ -66,7 +77,9 @@ resource "aws_eip" "nat-gw" {
     Name = "nat-elastic-ip"
   }
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on = [
+    aws_internet_gateway.gw,
+  ]
 }
 
 resource "aws_nat_gateway" "gw" {
@@ -77,7 +90,9 @@ resource "aws_nat_gateway" "gw" {
     Name = "${var.vpc_name}-nat-gateway-dev"
   }
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on = [
+    aws_internet_gateway.gw,
+  ]
 }
 
 # Route Tables
@@ -88,6 +103,10 @@ resource "aws_route_table" "dev" {
   tags = {
     Name = "dev-route-table"
   }
+
+  depends_on = [
+    aws_subnet.dev,
+  ]
 }
 
 resource "aws_route_table_association" "dev_routes" {
@@ -95,10 +114,18 @@ resource "aws_route_table_association" "dev_routes" {
 
   subnet_id      = aws_subnet.dev[count.index].id
   route_table_id = aws_route_table.dev.id
+
+  depends_on = [
+    aws_subnet.dev,
+  ]
 }
 
 resource "aws_route" "dev_nat" {
   route_table_id         = aws_route_table.dev.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.gw.id
+
+  depends_on = [
+    aws_subnet.dev,
+  ]
 }
