@@ -29,7 +29,7 @@ resource "aws_subnet" "dev" {
 
 resource "aws_network_acl" "vpc" {
   vpc_id     = aws_vpc.main.id
-  subnet_ids = toset([aws_subnet.dev.id] [aws_subnet.public.id])
+  subnet_ids = concat([aws_subnet.dev.id], [aws_subnet.public.id])
 
   ingress {
     protocol   = -1
@@ -161,7 +161,7 @@ resource "aws_route_table_association" "public_routes" {
 resource "aws_route" "public_igw" {
   route_table_id            = aws_route_table.public.id
   destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_internet_gateway.gw.id
+  gateway_id = aws_internet_gateway.gw.id
 
   depends_on = [aws_internet_gateway.gw]
 }
