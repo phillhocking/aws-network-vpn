@@ -84,29 +84,23 @@ resource "aws_nat_gateway" "gw" {
   depends_on = [aws_internet_gateway.gw]
 }
 
-# VPC Route Tables
+# VPC Route Table
 
 resource "aws_default_route_table" "default" {
   default_route_table_id = aws_vpc.main.main_route_table_id
 
+    route {
+      destination_cidr_block = "0.0.0.0/0"
+      gateway_id             = aws_internet_gateway.gw.id
+    }
+
   tags = {
     Name = "${var.vpc_name}-public"
-  }
-}
-
-resource "aws_route" "default" {
-  route_table_id         = aws_vpc.main.main_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.gw.id
-
-  timeouts {
-    create = "5m"
   }
   depends_on = [aws_internet_gateway.gw]
 }
 
-
-# dev Subnet Route Tables
+# dev Subnet Route Table
 
 resource "aws_route_table" "dev" {
   vpc_id = aws_vpc.main.id
@@ -119,10 +113,14 @@ resource "aws_route_table" "dev" {
 resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev[0].id
   route_table_id = aws_route_table.dev.id
+
+  depends_on = [aws_nat_gateway.gw]
 }
 
 resource "aws_route" "dev_nat" {
   route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.gw.id
+
+  depends_on = [aws_nat_gateway.gw]
 }
