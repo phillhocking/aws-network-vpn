@@ -13,21 +13,21 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "dev" {
-  count = var.subnet_count
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 6, count.index * 2 + 1)
+  cidr_block        = cidrsubnet(var.cidr_block, 6, 1)
+
 
   tags = {
-    Name = "dev-subnet-${count.index}"
+    Name = "dev-subnet"
   }
 }
 
 resource "aws_network_acl" "dev" {
   vpc_id     = aws_vpc.main.id
-  subnet_ids = aws_subnet.dev[*].id
+  subnet_ids = aws_subnet.dev.id
 
   ingress {
     protocol   = -1
@@ -75,7 +75,7 @@ resource "aws_eip" "nat-gw" {
 
 resource "aws_nat_gateway" "gw" {
   allocation_id = aws_eip.nat-gw.id
-  subnet_id     = aws_subnet.dev[0].id
+  subnet_id     = aws_subnet.dev.id
 
   tags = {
     Name = "${var.vpc_name}-nat-gateway-dev"
@@ -111,7 +111,7 @@ resource "aws_route_table" "dev" {
 }
 
 resource "aws_route_table_association" "dev_routes" {
-  subnet_id      = aws_subnet.dev[0].id
+  subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
 
   depends_on = [aws_nat_gateway.gw]
