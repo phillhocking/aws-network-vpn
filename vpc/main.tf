@@ -14,7 +14,6 @@ resource "aws_subnet" "dev" {
   count = var.subnet_count
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
   availability_zone = data.aws_availability_zones.available.names[0]
-
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.cidr_block, 6, count.index * 2 + 1)
 
@@ -99,7 +98,7 @@ resource "aws_route_table_association" "dev_routes" {
 }
 
 resource "aws_route" "dev_nat" {
-  route_table_id            = aws_route_table.dev.id
-  destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.gw.id
+  route_table_id         = aws_route_table.dev.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.gw.id
 }
