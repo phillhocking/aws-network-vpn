@@ -128,15 +128,15 @@ resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
 
-  depends_on = [aws_nat_gateway.gw]
+  depends_on = [aws_internet_gateway.gw]
 }
 
 resource "aws_route" "dev_nat" {
   route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.gw.id
+  gateway_id = aws_internet_gateway.gw.id
 
-  depends_on = [aws_nat_gateway.gw]
+  depends_on = [aws_internet_gateway.gw]
 }
 
 # Public Subnet Route Table
