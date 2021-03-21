@@ -59,7 +59,7 @@ resource "aws_subnet" "public" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 8, 1)
+  cidr_block        = cidrsubnet(var.cidr_block, 8, 254)
 
 
   tags = {
@@ -128,15 +128,15 @@ resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on = [aws_nat_gateway.gw]
 }
 
 resource "aws_route" "dev_nat" {
   route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.gw.id
+  nat_gateway_id = aws_nat_gateway.gw.id
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on = [aws_nat_gateway.gw]
 }
 
 # Public Subnet Route Table
