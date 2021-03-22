@@ -1,3 +1,10 @@
+# Required Variables - These variables must be provided with values
+
+variable "vpc_id" {
+  type        = string
+  description = "ID of the VPC created by VPC module"
+}
+
 variable "aws_route_table_ids" {
   type        = list(string)
   description = "aws route tables to add vpn routes to"

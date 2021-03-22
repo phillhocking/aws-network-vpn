@@ -14,6 +14,7 @@ module "vpn" {
     module.vpc.dev_route_table_id,
   ]
 
+  vpc_id                     = module.vpc.vpc_id
   prem_network_address_space = "10.20.0.0/16"
   prem_edge_ip               = var.edge_ip
 
