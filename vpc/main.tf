@@ -19,7 +19,7 @@ resource "aws_subnet" "dev" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id      = aws_vpc.main.id
-  cidr_block  = cidrsubnet(var.cidr_block, 6, 3)
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 2)
 
 
   tags        = {
@@ -32,7 +32,7 @@ resource "aws_subnet" "staging" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id      = aws_vpc.main.id
-  cidr_block  = cidrsubnet(var.cidr_block, 6, 2)
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 1)
 
 
   tags        = {
@@ -45,7 +45,7 @@ resource "aws_subnet" "prod" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   vpc_id      = aws_vpc.main.id
-  cidr_block  = cidrsubnet(var.cidr_block, 6, 1)
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 0)
 
 
   tags        = {
@@ -57,7 +57,7 @@ resource "aws_subnet" "prod" {
 
 resource "aws_network_acl" "vpc" {
   vpc_id       = aws_vpc.main.id
-  subnet_ids   = concat([aws_subnet.dev.id], [aws_subnet.public.id])
+  subnet_ids   = concat([aws_subnet.prod.id], [aws_subnet.staging.id], [aws_subnet.dev.id], [aws_subnet.public.id])
 
   ingress {
     protocol   = -1
