@@ -11,8 +11,8 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = {
-    Name = var.vpc_name
+  tags                  = {
+    Name                = var.vpc_name
   }
 }
 
@@ -54,7 +54,6 @@ resource "aws_subnet" "prod" {
   availability_zone = local.aws_available_zones
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.cidr_block, 6, 0)
-
 
   tags = {
     Name = "prod-subnet"
@@ -121,10 +120,10 @@ resource "aws_subnet" "public" {
 # Gateways
 
 resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
+  vpc_id    = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.vpc_name}-internet-gateway"
+  tags      = {
+    Name    = "${var.vpc_name}-internet-gateway"
   }
 
   depends_on = [ 
@@ -133,10 +132,10 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_eip" "nat-gw" {
-  vpc = true
+  vpc         = true
 
-  tags = {
-    Name = "nat-elastic-ip"
+  tags        = {
+    Name      = "nat-elastic-ip"
   }
 
   depends_on = [
@@ -167,8 +166,44 @@ resource "aws_default_route_table" "default" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags = {
-    Name = "${var.vpc_name}-public"
+  tags                   = {
+    Name                 = "${var.vpc_name}-public"
+  }
+  depends_on             = [aws_internet_gateway.gw]
+}
+
+# prod Subnet Route Table
+
+resource "aws_route_table" "prod" {
+  vpc_id  = aws_vpc.main.id
+
+  tags    = {
+    Name  = "prod-route-table"
+  }
+}
+
+resource "aws_route_table_association" "prod_routes" {
+  subnet_id      = aws_subnet.prod.id
+  route_table_id = aws_route_table.prod.id
+
+  depends_on     = [aws_nat_gateway.gw]
+}
+
+resource "aws_route" "prod_natgw" {
+  route_table_id            = aws_route_table.prod.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id                = aws_nat_gateway.gw.id
+
+  depends_on                = [aws_nat_gateway.gw]
+}
+
+# staging Subnet Route Table
+
+resource "aws_route_table" "staging" {
+  vpc_id  = aws_vpc.main.id
+
+  tags    = {
+    Name  = "staging-route-table"
   }
 
   depends_on = [
@@ -248,10 +283,10 @@ resource "aws_route" "staging_natgw" {
 
 # dev Subnet Route Table
 resource "aws_route_table" "dev" {
-  vpc_id = aws_vpc.main.id
+  vpc_id  = aws_vpc.main.id
 
-  tags = {
-    Name = "dev-route-table"
+  tags    = {
+    Name  = "dev-route-table"
   }
 
   depends_on = [ 
@@ -284,7 +319,7 @@ resource "aws_route" "dev_natgw" {
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
+  tags   = {
     Name = "public-route-table"
   }
 
