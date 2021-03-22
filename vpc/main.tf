@@ -54,18 +54,18 @@ resource "aws_network_acl" "vpc" {
   }
 }
 
-resource "aws_subnet" "public" {
+#resource "aws_subnet" "public" {
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
-  availability_zone = data.aws_availability_zones.available.names[0]
+#  availability_zone = data.aws_availability_zones.available.names[0]
 
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 8, 254)
+#  vpc_id            = aws_vpc.main.id
+#  cidr_block        = cidrsubnet(var.cidr_block, 8, 254)
 
 
-  tags = {
-    Name = "public-subnet"
-  }
-}
+#  tags = {
+#    Name = "public-subnet"
+#  }
+#}
 
 # Gateways
 
@@ -87,16 +87,16 @@ resource "aws_eip" "nat-gw" {
   depends_on = [aws_internet_gateway.gw]
 }
 
-resource "aws_nat_gateway" "gw" {
-  allocation_id = aws_eip.nat-gw.id
-  subnet_id     = aws_subnet.public.id
+#resource "aws_nat_gateway" "gw" {
+#  allocation_id = aws_eip.nat-gw.id
+#  subnet_id     = aws_subnet.public.id
 
-  tags = {
-    Name = "${var.vpc_name}-nat-gateway-dev"
-  }
+#  tags = {
+#    Name = "${var.vpc_name}-nat-gateway-dev"
+#  }
 
-  depends_on = [aws_internet_gateway.gw]
-}
+#  depends_on = [aws_internet_gateway.gw]
+#}
 
 # VPC Route Table
 
@@ -128,15 +128,15 @@ resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
 
-  depends_on = [aws_nat_gateway.gw]
+  depends_on = [aws_internet_gateway.gw]
 }
 
-resource "aws_route" "dev_nat" {
+resource "aws_route" "dev_igw" {
   route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.gw.id
+  gateway_id = aws_internet_gateway.gw.id
 
-  depends_on = [aws_nat_gateway.gw]
+  depends_on = [aws_internet_gateway.gw]
 }
 
 # Public Subnet Route Table
