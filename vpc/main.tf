@@ -118,7 +118,6 @@ resource "aws_subnet" "public" {
 }
 
 # Gateways
-
 resource "aws_internet_gateway" "gw" {
   vpc_id    = aws_vpc.main.id
 
@@ -138,8 +137,8 @@ resource "aws_eip" "nat-gw" {
     Name      = "nat-elastic-ip"
   }
 
-  depends_on = [
-    aws_internet_gateway.gw,
+  depends_on = [ 
+    aws_vpc.main,
   ]
 }
 
@@ -153,11 +152,11 @@ resource "aws_nat_gateway" "gw" {
 
   depends_on = [
     aws_internet_gateway.gw,
+    aws_eip.nat-gw,
   ]
 }
 
 # VPC Route Table
-
 resource "aws_default_route_table" "default" {
   default_route_table_id = aws_vpc.main.main_route_table_id
 
@@ -166,53 +165,17 @@ resource "aws_default_route_table" "default" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags                   = {
-    Name                 = "${var.vpc_name}-public"
-  }
-  depends_on             = [aws_internet_gateway.gw]
-}
-
-# prod Subnet Route Table
-
-resource "aws_route_table" "prod" {
-  vpc_id  = aws_vpc.main.id
-
-  tags    = {
-    Name  = "prod-route-table"
-  }
-}
-
-resource "aws_route_table_association" "prod_routes" {
-  subnet_id      = aws_subnet.prod.id
-  route_table_id = aws_route_table.prod.id
-
-  depends_on     = [aws_nat_gateway.gw]
-}
-
-resource "aws_route" "prod_natgw" {
-  route_table_id            = aws_route_table.prod.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id                = aws_nat_gateway.gw.id
-
-  depends_on                = [aws_nat_gateway.gw]
-}
-
-# staging Subnet Route Table
-
-resource "aws_route_table" "staging" {
-  vpc_id  = aws_vpc.main.id
-
-  tags    = {
-    Name  = "staging-route-table"
+  tags = {
+    Name = "${var.vpc_name}-public"
   }
 
   depends_on = [
     aws_internet_gateway.gw,
+    aws_vpc.main,
   ]
 }
 
 # prod Subnet Route Table
-
 resource "aws_route_table" "prod" {
   vpc_id = aws_vpc.main.id
 
@@ -246,7 +209,7 @@ resource "aws_route" "prod_natgw" {
   ]
 }
 
-# staging Subnet Route Table
+# Staging Subnet Route Table
 resource "aws_route_table" "staging" {
   vpc_id = aws_vpc.main.id
 
@@ -281,7 +244,7 @@ resource "aws_route" "staging_natgw" {
   ]
 }
 
-# dev Subnet Route Table
+# Dev Subnet Route Table
 resource "aws_route_table" "dev" {
   vpc_id  = aws_vpc.main.id
 
