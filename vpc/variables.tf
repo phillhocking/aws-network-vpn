@@ -21,5 +21,4 @@ variable "prem_network_address_space" {
 variable "prem_edge_ip" {
   type        = string
   description = "Public IP of premise edge for customer gateway" 
-
 }

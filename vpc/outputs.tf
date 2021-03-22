@@ -9,6 +9,6 @@ output "vpc_cidr_block" {
 }
 
 output "dev_route_table_id" {
-  value = aws_route_table.dev.id
+  value       = aws_route_table.dev.id
   description = "dev route table for vpc"
 }
