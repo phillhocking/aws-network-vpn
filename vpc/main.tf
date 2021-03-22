@@ -7,8 +7,8 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames  = true
   enable_dns_support    = true
 
-  tags = {
-    Name = var.vpc_name
+  tags                  = {
+    Name                = var.vpc_name
   }
 }
 
@@ -18,18 +18,18 @@ resource "aws_subnet" "dev" {
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
   availability_zone = data.aws_availability_zones.available.names[0]
 
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.cidr_block, 6, 1)
+  vpc_id      = aws_vpc.main.id
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 1)
 
 
-  tags = {
-    Name = "dev-subnet"
+  tags        = {
+    Name      = "dev-subnet"
   }
 }
 
 resource "aws_network_acl" "vpc" {
-  vpc_id     = aws_vpc.main.id
-  subnet_ids = concat([aws_subnet.dev.id])
+  vpc_id       = aws_vpc.main.id
+  subnet_ids   = concat([aws_subnet.dev.id], [aws_subnet.public.id])
 
   ingress {
     protocol   = -1
@@ -49,54 +49,54 @@ resource "aws_network_acl" "vpc" {
     to_port    = 0
   }
 
-  tags = {
-    Name = "dev-acl"
+  tags         = {
+    Name       = "${var.vpc_name}-nacl"
   }
 }
 
-#resource "aws_subnet" "public" {
-  # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
-#  availability_zone = data.aws_availability_zones.available.names[0]
+resource "aws_subnet" "public" {
+# This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
+  availability_zone = data.aws_availability_zones.available.names[0]
 
-#  vpc_id            = aws_vpc.main.id
-#  cidr_block        = cidrsubnet(var.cidr_block, 8, 254)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(var.cidr_block, 8, 254)
 
 
-#  tags = {
-#    Name = "public-subnet"
-#  }
-#}
+ tags               = {
+    Name            =  "public-subnet"
+  }
+}
 
 # Gateways
 
 resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
+  vpc_id    = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.vpc_name}-internet-gateway"
+  tags      = {
+    Name    = "${var.vpc_name}-internet-gateway"
   }
 }
 
 resource "aws_eip" "nat-gw" {
-  vpc = true
+  vpc         = true
 
-  tags = {
-    Name = "nat-elastic-ip"
+  tags        = {
+    Name      = "nat-elastic-ip"
   }
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on  = [aws_internet_gateway.gw]
 }
 
-#resource "aws_nat_gateway" "gw" {
-#  allocation_id = aws_eip.nat-gw.id
-#  subnet_id     = aws_subnet.public.id
+resource "aws_nat_gateway" "gw" {
+  allocation_id = aws_eip.nat-gw.id
+  subnet_id     = aws_subnet.public.id
 
-#  tags = {
-#    Name = "${var.vpc_name}-nat-gateway-dev"
-#  }
+  tags          = {
+    Name        = "${var.vpc_name}-nat-gateway"
+  }
 
-#  depends_on = [aws_internet_gateway.gw]
-#}
+  depends_on    = [aws_internet_gateway.gw]
+}
 
 # VPC Route Table
 
@@ -104,23 +104,23 @@ resource "aws_default_route_table" "default" {
   default_route_table_id = aws_vpc.main.main_route_table_id
 
     route {
-      cidr_block    = "0.0.0.0/0"
-      gateway_id    = aws_internet_gateway.gw.id
+      cidr_block         = "0.0.0.0/0"
+      gateway_id         = aws_internet_gateway.gw.id
     }
 
-  tags = {
-    Name = "${var.vpc_name}-public"
+  tags                   = {
+    Name                 = "${var.vpc_name}-public"
   }
-  depends_on = [aws_internet_gateway.gw]
+  depends_on             = [aws_internet_gateway.gw]
 }
 
 # dev Subnet Route Table
 
 resource "aws_route_table" "dev" {
-  vpc_id = aws_vpc.main.id
+  vpc_id  = aws_vpc.main.id
 
-  tags = {
-    Name = "dev-route-table"
+  tags    = {
+    Name  = "dev-route-table"
   }
 }
 
@@ -128,40 +128,38 @@ resource "aws_route_table_association" "dev_routes" {
   subnet_id      = aws_subnet.dev.id
   route_table_id = aws_route_table.dev.id
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on     = [aws_nat_gateway.gw]
 }
 
-resource "aws_route" "dev_igw" {
+resource "aws_route" "dev_natgw" {
   route_table_id            = aws_route_table.dev.id
   destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.gw.id
+  gateway_id                = aws_nat_gateway.gw.id
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on                = [aws_nat_gateway.gw]
 }
 
 # Public Subnet Route Table
 
-# dev Subnet Route Table
-
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
+  tags   = {
     Name = "public-route-table"
   }
 }
 
-#resource "aws_route_table_association" "public_routes" {
-#  subnet_id      = aws_subnet.public.id
-#  route_table_id = aws_route_table.public.id
+resource "aws_route_table_association" "public_routes" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
 
-#  depends_on = [aws_internet_gateway.gw]
-#}
+  depends_on     = [aws_internet_gateway.gw]
+}
 
 resource "aws_route" "public_igw" {
-  route_table_id            = aws_route_table.public.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.gw.id
+  route_table_id          = aws_route_table.public.id
+  destination_cidr_block  = "0.0.0.0/0"
+  gateway_id              = aws_internet_gateway.gw.id
 
-  depends_on = [aws_internet_gateway.gw]
+  depends_on              = [aws_internet_gateway.gw]
 }
