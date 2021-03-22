@@ -29,7 +29,7 @@ resource "aws_subnet" "dev" {
 
 resource "aws_network_acl" "vpc" {
   vpc_id     = aws_vpc.main.id
-  subnet_ids = concat([aws_subnet.dev.id], [aws_subnet.public.id])
+  subnet_ids = concat([aws_subnet.dev.id])
 
   ingress {
     protocol   = -1
@@ -151,12 +151,12 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table_association" "public_routes" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
+#resource "aws_route_table_association" "public_routes" {
+#  subnet_id      = aws_subnet.public.id
+#  route_table_id = aws_route_table.public.id
 
-  depends_on = [aws_internet_gateway.gw]
-}
+#  depends_on = [aws_internet_gateway.gw]
+#}
 
 resource "aws_route" "public_igw" {
   route_table_id            = aws_route_table.public.id
