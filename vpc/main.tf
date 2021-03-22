@@ -12,9 +12,35 @@ resource "aws_vpc" "main" {
   }
 }
 
-# Subnets / NACLS
+# Subnets 
 
 resource "aws_subnet" "dev" {
+  # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
+  availability_zone = data.aws_availability_zones.available.names[0]
+
+  vpc_id      = aws_vpc.main.id
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 3)
+
+
+  tags        = {
+    Name      = "dev-subnet"
+  }
+}
+
+resource "aws_subnet" "staging" {
+  # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
+  availability_zone = data.aws_availability_zones.available.names[0]
+
+  vpc_id      = aws_vpc.main.id
+  cidr_block  = cidrsubnet(var.cidr_block, 6, 2)
+
+
+  tags        = {
+    Name      = "staging-subnet"
+  }
+}
+
+resource "aws_subnet" "prod" {
   # This line is necessary to ensure that we pick availabiltiy zones that can launch any size ec2 instance
   availability_zone = data.aws_availability_zones.available.names[0]
 
@@ -23,9 +49,11 @@ resource "aws_subnet" "dev" {
 
 
   tags        = {
-    Name      = "dev-subnet"
+    Name      = "prod-subnet"
   }
 }
+
+# NACL
 
 resource "aws_network_acl" "vpc" {
   vpc_id       = aws_vpc.main.id
@@ -112,6 +140,56 @@ resource "aws_default_route_table" "default" {
     Name                 = "${var.vpc_name}-public"
   }
   depends_on             = [aws_internet_gateway.gw]
+}
+
+# prod Subnet Route Table
+
+resource "aws_route_table" "prod" {
+  vpc_id  = aws_vpc.main.id
+
+  tags    = {
+    Name  = "prod-route-table"
+  }
+}
+
+resource "aws_route_table_association" "prod_routes" {
+  subnet_id      = aws_subnet.prod.id
+  route_table_id = aws_route_table.prod.id
+
+  depends_on     = [aws_nat_gateway.gw]
+}
+
+resource "aws_route" "prod_natgw" {
+  route_table_id            = aws_route_table.prod.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id                = aws_nat_gateway.gw.id
+
+  depends_on                = [aws_nat_gateway.gw]
+}
+
+# staging Subnet Route Table
+
+resource "aws_route_table" "staging" {
+  vpc_id  = aws_vpc.main.id
+
+  tags    = {
+    Name  = "staging-route-table"
+  }
+}
+
+resource "aws_route_table_association" "staging_routes" {
+  subnet_id      = aws_subnet.staging.id
+  route_table_id = aws_route_table.staging.id
+
+  depends_on     = [aws_nat_gateway.gw]
+}
+
+resource "aws_route" "staging_natgw" {
+  route_table_id            = aws_route_table.staging.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id                = aws_nat_gateway.gw.id
+
+  depends_on                = [aws_nat_gateway.gw]
 }
 
 # dev Subnet Route Table
