@@ -1,8 +1,8 @@
 resource "aws_vpn_gateway" "main" {
-  vpc_id = var.vpc_id
+  vpc_id  = var.vpc_id
 
-  tags = {
-    Name = "vpn-gateway"
+  tags    = {
+    Name  = "vpn-gateway"
   }
 }
 
@@ -11,7 +11,7 @@ resource "aws_vpn_gateway_route_propagation" "main" {
   route_table_id = var.aws_route_table_ids[count.index]
   vpn_gateway_id = aws_vpn_gateway.main.id
 
-  depends_on = [ 
+  depends_on     = [ 
     aws_vpn_gateway.main,
   ]
 }
@@ -21,8 +21,8 @@ resource "aws_customer_gateway" "main" {
   ip_address = var.prem_edge_ip
   type       = "ipsec.1"
 
-  tags = {
-    Name = "main-vpn-customer-gateway"
+  tags       = {
+    Name     = "main-vpn-customer-gateway"
   }
 }
 
@@ -32,11 +32,11 @@ resource "aws_vpn_connection" "main" {
   type                = "ipsec.1"
   static_routes_only  = true
 
-  tags = {
-    Name = "main-vpn-connection"
+  tags                = {
+    Name              = "main-vpn-connection"
   }
 
-  depends_on = [ 
+  depends_on          = [ 
     aws_vpn_gateway.main,
     aws_customer_gateway.main,
   ]
@@ -46,7 +46,7 @@ resource "aws_vpn_connection_route" "main" {
   vpn_connection_id      = aws_vpn_connection.main.id
   destination_cidr_block = var.prem_network_address_space
 
-  depends_on = [ 
+  depends_on             = [ 
     aws_vpn_connection.main,
   ]
 }

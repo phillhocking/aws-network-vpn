@@ -4,7 +4,7 @@ terraform {
     organization = "excelsior"
 
     workspaces {
-      name = "aws-network-vpn"
+      name       = "aws-network-vpn"
     }
   }
 }

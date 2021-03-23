@@ -8,7 +8,7 @@ module "vpc" {
 }
 
 module "vpn" {
-  source = "./vpn"
+  source                      = "./vpn"
 
   aws_route_table_ids = [
     module.vpc.dev_route_table_id,
@@ -18,7 +18,7 @@ module "vpn" {
   prem_network_address_space = "10.20.0.0/16"
   prem_edge_ip               = var.edge_ip
 
-  depends_on = [
+  depends_on                 = [
     module.vpc,
   ]  
 }
