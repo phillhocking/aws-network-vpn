@@ -11,7 +11,7 @@ module "vpn" {
   source                      = "./vpn"
 
   aws_route_table_ids = [
-    module.vpc.dev_route_table_id,
+    module.vpc.route_table_ids,
   ]
 
   vpc_id                     = module.vpc.vpc_id

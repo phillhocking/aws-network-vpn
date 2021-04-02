@@ -8,7 +8,13 @@ output "vpc_cidr_block" {
   description = "cidr prefix of vpc"
 }
 
-output "dev_route_table_id" {
-  value       = aws_route_table.dev.id
-  description = "dev route table for vpc"
+output "route_table_ids" {
+  value       = concat(
+    [aws_route_table.prod.id],
+    [aws_route_table.staging.id],
+    [aws_route_table.dev.id], 
+    [aws_route_table.public.id]
+  )
+
+  description = "Route tables for vpc subnets"
 }
