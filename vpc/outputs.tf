@@ -9,7 +9,7 @@ output "vpc_cidr_block" {
 }
 
 output "route_table_ids" {
-  value       = concat(
+  value       = tolist(
     [aws_route_table.prod.id],
     [aws_route_table.staging.id],
     [aws_route_table.dev.id], 
